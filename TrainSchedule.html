@@ -1,0 +1,147 @@
+<!doctype html>
+<head>
+    
+  
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+</head>
+<style>
+    .wrapper{
+      margin: 0 15%;
+
+    }
+  </style>
+<body>
+    <div class="wrapper">
+    <div class="jumbotron jumbotron-fluid">
+        <div class="container">
+          <h1 class="display-4">Train Schedule</h1>
+        </div>
+      </div>
+
+
+      <table class="table table-striped" id="Train-Table">
+          <thead>
+            <tr>
+              <th scope="col">Train Name</th>
+              <th scope="col">Train Destination</th>
+              <th scope="col">First Train Departure</th>
+              <th scope="col">Train Frequency</th>
+            </tr>
+          </thead>
+
+        </table>
+
+
+      <div class="form-group">
+          <label for="TrainName-Input"">TrainName</label>
+          <input type="text" class="form-control" id="TrainName-Input"" placeholder="Full TrainName">
+        </div>
+        <div class="form-group">
+            <label for="Destination-Input"">Destination</label>
+            <input type="text" class="form-control" id="Destination-Input"" placeholder="Destination">
+          </div>
+          <div class="form-group">
+              <label for="FirstTrainTime-Input"">First Train Time</label>
+              <input type="time" class="form-control" id="FirstTrainTime-Input"" placeholder="First Train">
+            </div>
+            <div class="form-group">
+                <label for="Frequency-Input"">Frequency</label>
+                <input type="text" class="form-control" id="Frequency-Input"" placeholder="Frequency">
+              </div>
+              <input class="btn btn-primary" type="submit" value="Submit" id="SubmitButton">
+
+    </div>
+</body>
+
+<script src="https://www.gstatic.com/firebasejs/5.5.8/firebase.js"></script>
+<script src="https://code.jquery.com/jquery.js"></script>
+<script>
+ //  START CODING BELOW!!
+
+    // Initialize Firebase
+
+    var config = {
+        apiKey: "AIzaSyDNxwyasCTokmG3ABWDv5mv5vmIlBU9_X4",
+        authDomain: "vennarucciproject01.firebaseapp.com",
+        databaseURL: "https://vennarucciproject01.firebaseio.com",
+        projectId: "vennarucciproject01",
+        storageBucket: "vennarucciproject01.appspot.com",
+        messagingSenderId: "981234170281"
+    };
+    firebase.initializeApp(config);
+
+// Create a variable to reference the database
+
+var database = firebase.database();
+var TrainName, Destination, FirstTrainTime, Frequency;
+
+// Capture Button Click
+$("#SubmitButton").on("click", function(event) {
+  // Don't refresh the page!
+  event.preventDefault();
+
+  // YOUR TASK!!!
+
+  // Code in the logic for storing and retrieving the most recent user.
+
+  TrainName = $("#TrainName-Input").val();
+  Destination =$("#Destination-Input").val();
+  FirstTrainTime =$("#FirstTrainTime-Input").val();
+  Frequency=$("#Frequency-Input").val();
+
+
+  // Don't forget to provide initial data to your Firebase database.
+
+       database.ref().set({
+            TrainName: TrainName,
+            Destination: Destination,
+            FirstTrainTime: FirstTrainTime,
+            Frequency: Frequency
+        });
+
+
+
+});
+
+
+//Firebase watcher + initial loader HINT: .on("value")
+
+// database.ref().once('value', function(snapshot){
+//         if(snapshot.exists()){
+//             var content = '';
+//             snapshot.forEach(function(data){
+//                 var val = data.val();
+//                 content +='<tr>';
+//                 content += '<td>' + val.TrainName + '</td>';
+//                 content += '<td>' + val.Destination + '</td>';
+//                 content += '<td>' + val.FirstTrainTime + '</td>';
+//                 content += '<td>' + val.Frequency + '</td>';
+//                 content += '</tr>';
+//             });
+//             $('#Train-Table').append(content);
+//         }
+//     });
+
+    database.ref().on("value", function(snapshot) {
+
+      var content = '';
+      content +='<tr>';
+      content += '<td>' + snapshot.val().TrainName + '</td>';
+      content += '<td>' + snapshot.val().Destination + '</td>';
+      content += '<td>' + snapshot.val().FirstTrainTime + '</td>';
+      content += '<td>' + snapshot.val().Frequency + '</td>';
+      content += '</tr>';
+
+        $('#Train-Table').append(content);
+        
+}, function(errorObject) {
+  console.log("The read failed: " + errorObject.code);
+});
+
+
+// Create Error Handling
+
+</script>
+
+</html>
