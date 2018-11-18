@@ -63,6 +63,10 @@
 <script src="https://cdn.jsdelivr.net/momentjs/2.12.0/moment.min.js"></script>
 <script>
 
+$(document).ready(function() { 
+  
+  Display();
+});
 
   // Initialize Firebase
   var config = {
@@ -79,16 +83,16 @@
 
   var database = firebase.database();
   var TrainName, Destination, FirstTrainTime, Frequency;
-  var NextArrival, MinutesAway;
 
   // Capture Button Click
   $("#SubmitButton").on("click", function (event) {
 
 
-    TrainName = $("#TrainName-Input").val();
-    Destination = $("#Destination-Input").val();
-    FirstTrainTime = $("#FirstTrainTime-Input").val();
-    Frequency = $("#Frequency-Input").val();
+
+    TrainName = $("#TrainName-Input").val().trim();
+    Destination = $("#Destination-Input").val().trim();
+    FirstTrainTime = $("#FirstTrainTime-Input").val().trim();
+    Frequency = $("#Frequency-Input").val().trim();
 
 
     database.ref().push({
@@ -98,34 +102,46 @@
       Frequency: Frequency
     });
 
+    //display train table
+    Display();
 
 
-  });
+    });
 
-  database.ref().once('value', function (snapshot) {
-    if (snapshot.exists()) {
-      var content = '';
-      snapshot.forEach(function (data) {
-        var val = data.val();
-        content += '<tr>';
-        content += '<td>' + val.TrainName + '</td>';
-        content += '<td>' + val.Destination + '</td>';
-        content += '<td>' + val.Frequency + '</td>';
-        //next arrival
-        content += '<td>' + CaluclateArrival(val.FirstTrainTime, val.Frequency) + '</td>';
-        //minutes away
-        content += '<td>' + CaluclateMinutesAway(val.FirstTrainTime, val.Frequency) + '</td>';
+      function Display() {
+        //clears table when loads and loads new header
+        var rowHeader= ["Train Name","Train Destination","Frequency","Next Arrival","Minutes Away"];
+        $("#Train-Table").empty();
+        for(var i=0; i < 5; i++){
+          $('#Train-Table').append("<th>" + rowHeader[i] + "</th>");
+        }
 
-        content += '</tr>';
-      });
-      $('#Train-Table').append(content);
-    }
-  });
+        // grabs data from firebase and displays it in the table
+        database.ref().once('value', function (snapshot) {
+          if (snapshot.exists()) {
+            var content = '';
+            snapshot.forEach(function (data) {
+              var val = data.val();
+              content += '<tr>';
+              content += '<td>' + val.TrainName + '</td>';
+              content += '<td>' + val.Destination + '</td>';
+              content += '<td>' + val.Frequency + '</td>';
+              //next arrival
+              content += '<td>' + CaluclateArrival(val.FirstTrainTime, val.Frequency) + '</td>';
+              //minutes away
+              content += '<td>' + CaluclateMinutesAway(val.FirstTrainTime, val.Frequency) + '</td>';
+              content += '</tr>';
+            });
+            $('#Train-Table').append(content);
+          }
+        });
+      }
 
+// caluclates minutes away the next train is from the current time
   function CaluclateMinutesAway(FirstTrainTime, Frequency) {
 
     // First Time (pushed back 1 year to make sure it comes before current time)
-    var firstTimeConverted = moment(FirstTrainTime, "HH:mm");
+    var firstTimeConverted = moment(FirstTrainTime, "HH:mm").subtract(1, "years");
 
     // Current Time
     var currentTime = moment();
@@ -139,16 +155,14 @@
     // Minute Until Train
     var tMinutesTillTrain = Frequency - tRemainder;
 
-
     return tMinutesTillTrain;
-
   }
 
+// calculates the first trains arrival
   function CaluclateArrival(FirstTrainTime, Frequency) {
 
-
     // First Time (pushed back 1 year to make sure it comes before current time)
-    var firstTimeConverted = moment(FirstTrainTime, "HH:mm");
+    var firstTimeConverted = moment(FirstTrainTime, "HH:mm").subtract(1, "years");
 
     // Current Time
     var currentTime = moment();
@@ -166,8 +180,6 @@
     var nextTrain = moment().add(tMinutesTillTrain, "minutes");
 
     return moment(nextTrain).format("hh:mm a");
-
-
   }
 
 
