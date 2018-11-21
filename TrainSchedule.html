@@ -3,8 +3,9 @@
 <head>
 
 
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-    crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
 </head>
 <style>
@@ -56,7 +57,9 @@
 $(document).ready(function() { 
   
   Display();
+  
 });
+
 
   // Initialize Firebase
   var config = {
@@ -72,6 +75,7 @@ $(document).ready(function() {
   // Create a variable to reference the database
 
   var database = firebase.database();
+
   var TrainName, Destination, FirstTrainTime, Frequency;
 
   // Capture Button Click
@@ -85,12 +89,13 @@ $(document).ready(function() {
     Frequency = $("#Frequency-Input").val().trim();
 
 
-    database.ref().push({
+    database.ref("trains/").push({
       TrainName: TrainName,
       Destination: Destination,
       FirstTrainTime: FirstTrainTime,
       Frequency: Frequency
     });
+
 
     //display train table
     Display();
@@ -100,18 +105,19 @@ $(document).ready(function() {
 
       function Display() {
         //clears table when loads and loads new header
-        var rowHeader= ["Train Name","Train Destination","Frequency","Next Arrival","Minutes Away"];
+        var rowHeader= ["Train Name","Train Destination","Frequency","Next Arrival","Minutes Away","delete"];
         $("#Train-Table").empty();
-        for(var i=0; i < 5; i++){
+        for(var i=0; i < rowHeader.length; i++){
           $('#Train-Table').append("<th>" + rowHeader[i] + "</th>");
         }
 
         // grabs data from firebase and displays it in the table
-        database.ref().once('value', function (snapshot) {
+        database.ref("trains/").once('value', function (snapshot) {
           if (snapshot.exists()) {
             var content = '';
             snapshot.forEach(function (data) {
               var val = data.val();
+              var childkey = data.key;
               content += '<tr>';
               content += '<td>' + val.TrainName + '</td>';
               content += '<td>' + val.Destination + '</td>';
@@ -120,12 +126,28 @@ $(document).ready(function() {
               content += '<td>' + CaluclateArrival(val.FirstTrainTime, val.Frequency) + '</td>';
               //minutes away
               content += '<td>' + CaluclateMinutesAway(val.FirstTrainTime, val.Frequency) + '</td>';
+              // displays delete icon and calls Delete Function when clicked
+              content += '<td>' + '<a href="#" onclick="Delete(\''+ childkey + '\')">Remove<span class="glyphicon glyphicon-remove"></span></a>' + '</td>';
               content += '</tr>';
             });
             $('#Train-Table').append(content);
           }
         });
       }
+
+      function Delete(key){
+        var refDB = firebase.database().ref('trains/' + key);
+                            refDB.remove()
+                            .then(function() {
+                              console.log("Remove succeeded.")
+                            })
+                            .catch(function(error) {
+                              console.log("Remove failed: " + error.message)
+                            });
+
+       Display();
+
+}
 
 // caluclates minutes away the next train is from the current time
   function CaluclateMinutesAway(FirstTrainTime, Frequency) {
