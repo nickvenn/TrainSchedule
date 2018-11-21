@@ -105,7 +105,7 @@ $(document).ready(function() {
 
       function Display() {
         //clears table when loads and loads new header
-        var rowHeader= ["Train Name","Train Destination","Frequency","Next Arrival","Minutes Away","delete"];
+        var rowHeader= ["Train Name","Train Destination","Frequency","Next Arrival","Minutes Away","Delete","Edit"];
         $("#Train-Table").empty();
         for(var i=0; i < rowHeader.length; i++){
           $('#Train-Table').append("<th>" + rowHeader[i] + "</th>");
@@ -128,6 +128,7 @@ $(document).ready(function() {
               content += '<td>' + CaluclateMinutesAway(val.FirstTrainTime, val.Frequency) + '</td>';
               // displays delete icon and calls Delete Function when clicked
               content += '<td>' + '<a href="#" onclick="Delete(\''+ childkey + '\')">Remove<span class="glyphicon glyphicon-remove"></span></a>' + '</td>';
+              content += '<td>' + '<a href="#" onclick="Edit(\''+ childkey + '\')">Edit<span class="glyphicon glyphicon-edit"></span></a>' + '</td>';
               content += '</tr>';
             });
             $('#Train-Table').append(content);
@@ -144,8 +145,12 @@ $(document).ready(function() {
                             .catch(function(error) {
                               console.log("Remove failed: " + error.message)
                             });
-
        Display();
+}
+
+function Edit(key){
+
+    alert("this function does NOT work");
 
 }
 
